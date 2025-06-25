@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Üzümlü İlçesi Afet Haberleşme Projesi</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Crisis Command Neutrals -->
+    <!-- Application Structure Plan: Proje raporunu, kullanıcıyı adım adım bilgilendiren, yukarıdan aşağıya doğru akan, tematik bölümlere ayrılmış bir anlatı yapısına dönüştürdüm. Bu yapı, bir yetkilinin projeyi baştan sona mantıksal bir akışla anlamasını sağlar: (1) Başlık ve Önem, (2) Problemin Görselleştirilmesi, (3) Çözüm Olan Sistemin İnteraktif Tanıtımı, (4) Deprem Senaryosunun Etkileşimli Zaman Tüneli, (5) İhtiyaçların Grafik ve Kartlarla Sunumu, (6) Resmi Adımların Vurgulanması. Bu yapı, raporun metinsel yoğunluğunu kırarak, interaktif keşif yoluyla anlamayı kolaylaştırdığı için seçilmiştir. -->
+    <!-- Visualization & Content Choices: 
+        - Problem: Karşılaştırma -> Basit ikonlar ve metinle iki sütunlu HTML/CSS düzeni -> Etkileşim yok, zıtlık yeterli -> Tailwind.
+        - Sistem Bileşenleri: Organizasyon/İlişki -> Etkileşimli şema -> Tıklanabilir HTML/CSS ikonları ve JS ile içerik gösterme -> Kullanıcının sistemi keşfetmesini sağlar -> Vanilla JS.
+        - Deprem Senaryosu: Değişim/Süreç -> Etkileşimli zaman tüneli -> Tıklanabilir HTML/CSS noktaları ve JS ile metin güncelleme -> Senaryonun etkisini kronolojik olarak yaşatır -> Vanilla JS.
+        - Ekipman Listesi: Bilgilendirme/Karşılaştırma -> Kategori bazlı Donut Chart ve interaktif kartlar -> Genel bakış ve detayı bir arada sunar -> Chart.js & Vanilla JS.
+        - Resmi Adımlar: Bilgilendirme -> Vurgulu ikonik kartlar -> Adımların net ve akılda kalıcı olmasını sağlar -> Tailwind.
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .section-title { @apply text-3xl font-bold text-slate-800 mb-4 text-center; }
+        .section-subtitle { @apply text-xl text-slate-600 mb-8 text-center max-w-3xl mx-auto; }
+        .card { @apply bg-white rounded-lg shadow-lg p-6 transition-all duration-300; }
+        .nav-button { @apply px-4 py-2 rounded-md text-sm font-medium text-slate-700 hover:bg-slate-200 transition-colors; }
+        .timeline-point { @apply w-8 h-8 rounded-full flex items-center justify-center cursor-pointer transition-all duration-300; }
+        .timeline-point.active { @apply bg-blue-600 text-white shadow-lg scale-125; }
+        .timeline-point.inactive { @apply bg-slate-300 text-slate-600; }
+        .chart-container { position: relative; width: 100%; max-width: 400px; margin-left: auto; margin-right: auto; height: 350px; max-height: 400px; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800">
+
+    <!-- Header & Navigation -->
+    <header class="bg-white/80 backdrop-blur-sm sticky top-0 z-50 shadow-sm">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <h1 class="text-xl font-bold text-blue-600">Üzümlü Afet Haberleşme Projesi</h1>
+            <nav class="hidden md:flex space-x-2">
+                <a href="#problem" class="nav-button">Problem</a>
+                <a href="#solution" class="nav-button">Çözüm</a>
+                <a href="#scenario" class="nav-button">Senaryo</a>
+                <a href="#needs" class="nav-button">İhtiyaçlar</a>
+                <a href="#steps" class="nav-button">Adımlar</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 py-8 md:py-12">
+
+        <!-- Hero Section -->
+        <section id="hero" class="text-center py-16">
+            <h1 class="text-4xl md:text-5xl font-bold text-slate-800 mb-4">Kesintisiz İletişim, Kurtarılan Hayatlar</h1>
+            <p class="text-lg md:text-xl text-slate-600 max-w-4xl mx-auto">
+                Afet anında çöken haberleşme altyapısı, müdahale ekiplerinin elini kolunu bağlar. Bu proje, Üzümlü ilçesine her koşulda çalışacak, bağımsız ve güvenilir bir haberleşme ağı kazandırarak "altın saatlerde" hayat kurtarmayı hedeflemektedir.
+            </p>
+            <p class="mt-6 text-sm font-medium text-slate-500">Proje Sahibi: Mertcan Yıldızdöken</p>
+        </section>
+
+        <!-- The Problem -->
+        <section id="problem" class="py-16">
+            <h2 class="section-title">Problem: Afet Anındaki İletişim Felci</h2>
+            <p class="section-subtitle">
+                Büyük bir afet vurduğunda, güvendiğimiz tüm modern iletişim sistemleri dakikalar içinde devre dışı kalır. Bu "bilgi karanlığı", kaosu derinleştirir ve etkin müdahaleyi imkansız kılar.
+            </p>
+            <div class="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto mt-8">
+                <div class="card border-t-4 border-green-400">
+                    <h3 class="text-2xl font-bold mb-4 text-green-600">Normal Bir Günde</h3>
+                    <ul class="space-y-3">
+                        <li class="flex items-center"><span class="text-2xl mr-3">📱</span> GSM şebekesi sorunsuz çalışır.</li>
+                        <li class="flex items-center"><span class="text-2xl mr-3">🌐</span> İnternet erişimi mevcuttur.</li>
+                        <li class="flex items-center"><span class="text-2xl mr-3">💡</span> Elektrik şebekesi aktiftir.</li>
+                        <li class="flex items-center"><span class="text-2xl mr-3">✅</span> Koordinasyon kolay ve hızlıdır.</li>
+                    </ul>
+                </div>
+                <div class="card border-t-4 border-red-500 bg-red-50">
+                    <h3 class="text-2xl font-bold mb-4 text-red-600">Afet Anında</h3>
+                    <ul class="space-y-3">
+                        <li class="flex items-center"><span class="text-2xl mr-3">📵</span> GSM şebekesi çöker veya kilitlenir.</li>
+                        <li class="flex items-center"><span class="text-2xl mr-3">🚫</span> İnternet erişimi kesilir.</li>
+                        <li class="flex items-center"><span class="text-2xl mr-3">🔌</span> Elektrik tamamen gider.</li>
+                        <li class="flex items-center"><span class="text-2xl mr-3">❌</span> Tam bir kaos ve bilgi eksikliği yaşanır.</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- The Solution (Revised) -->
+        <section id="solution" class="py-16 bg-slate-100 rounded-lg">
+            <h2 class="section-title">Çözüm: Bağımsız ve Güçlü Haberleşme Ağı</h2>
+            <p class="section-subtitle">
+                Önerilen sistem, dış etkenlerden tamamen bağımsız, kendi enerjisini üreten ve her koşulda çalışmak üzere tasarlanmış katmanlı bir telsiz haberleşme ağıdır. Sistemin bileşenleri aşağıda açıklanmıştır.
+            </p>
+            <div class="max-w-4xl mx-auto space-y-8">
+                <div class="card">
+                    <h3 class="text-2xl font-bold mb-2 text-blue-600 flex items-center"><span class="text-3xl mr-4">📡</span>Sabit Röle (Tekrarlayıcı)</h3>
+                    <p class="text-slate-600 pl-12">İlçeye hakim bir tepeye kurulan, sistemin kalbidir. Zayıf telsiz sinyallerini alıp güçlendirerek çok geniş bir alana yeniden yayınlar. Böylece normalde birbirini duyamayacak ekiplerin iletişimini sağlar.</p>
+                </div>
+                <div class="card">
+                     <h3 class="text-2xl font-bold mb-2 text-blue-600 flex items-center"><span class="text-3xl mr-4">🏢</span>Kriz Yönetim Merkezi</h3>
+                    <p class="text-slate-600 pl-12">Tüm iletişimin yönetildiği, sahadan gelen bilgilerin toplandığı ve ekiplerin yönlendirildiği merkezdir. Güneş enerjisi ile beslenir.</p>
+                </div>
+                 <div class="card">
+                    <h3 class="text-2xl font-bold mb-2 text-blue-600 flex items-center"><span class="text-3xl mr-4">👨‍🚒</span>El Telsizli Ekipler</h3>
+                    <p class="text-slate-600 pl-12">Arama-kurtarma, sağlık, güvenlik gibi sahadaki tüm ekipler, dayanıklı el telsizleri ile Kriz Merkezi ve birbirleriyle kesintisiz iletişim kurar.</p>
+                </div>
+                 <div class="card">
+                    <h3 class="text-2xl font-bold mb-2 text-blue-600 flex items-center"><span class="text-3xl mr-4">🛰️</span>Seyyar Röle</h3>
+                    <p class="text-slate-600 pl-12">Taşınabilir bu röle, kapsama alanı dışında kalan veya iletişimin zor olduğu enkaz bölgelerinde hızla kurularak yerel bir haberleşme ağı oluşturur.</p>
+                </div>
+                <div class="card">
+                     <h3 class="text-2xl font-bold mb-2 text-blue-600 flex items-center"><span class="text-3xl mr-4">🌍</span>HF Telsiz (Uzak Mesafe)</h3>
+                    <p class="text-slate-600 pl-12">Tüm telefon ve internet hatları kopsa bile, bu sistemle Valilik, AFAD veya Ankara ile doğrudan sesli iletişim kurularak üst düzey koordinasyon sağlanır.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Scenario -->
+        <section id="scenario" class="py-16">
+            <h2 class="section-title">Senaryo: Deprem Anında Projenin İşlerliği</h2>
+            <p class="section-subtitle">
+                Sistemin gerçek hayatta nasıl bir fark yaratacağını görelim. 7.2 büyüklüğündeki bir deprem senaryosunu zaman tüneli üzerinde adım adım takip edin.
+            </p>
+            <div class="w-full max-w-5xl mx-auto">
+                <div class="relative w-full py-4">
+                    <div class="absolute top-1/2 left-0 w-full h-1 bg-slate-300 transform -translate-y-1/2"></div>
+                    <div id="timeline-container" class="relative flex justify-between items-center">
+                        <!-- Timeline points will be injected by JS -->
+                    </div>
+                </div>
+                <div id="scenario-display" class="card mt-8 min-h-[150px]">
+                    <p class="text-slate-700 text-lg">Zaman tünelinden bir an seçerek detayları burada görüntüleyin.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Needs -->
+        <section id="needs" class="py-16 bg-slate-100 rounded-lg">
+            <h2 class="section-title">Proje İhtiyaçları: Ekipman ve Hizmetler</h2>
+            <p class="section-subtitle">
+                Projenin hayata geçmesi için gerekli olan ana ekipman, güç sistemleri, yardımcı malzemeler ve hizmetlerin dökümü aşağıda sunulmuştur.
+            </p>
+            <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mt-8">
+                <div class="card text-center">
+                    <h3 class="text-xl font-bold mb-2">Ana Ekipman</h3>
+                    <p class="text-3xl font-bold text-blue-600">4</p>
+                    <p class="text-slate-500">Kalem Cihaz</p>
+                </div>
+                <div class="card text-center">
+                    <h3 class="text-xl font-bold mb-2">Güç Sistemi</h3>
+                    <p class="text-3xl font-bold text-blue-600">3</p>
+                    <p class="text-slate-500">Kalem Malzeme</p>
+                </div>
+                 <div class="card text-center">
+                    <h3 class="text-xl font-bold mb-2">Yardımcı Malzeme</h3>
+                    <p class="text-3xl font-bold text-blue-600">3</p>
+                    <p class="text-slate-500">Kalem Ürün</p>
+                </div>
+                 <div class="card text-center">
+                    <h3 class="text-xl font-bold mb-2">Kurulum ve Eğitim</h3>
+                    <p class="text-3xl font-bold text-blue-600">2</p>
+                    <p class="text-slate-500">Kalem Hizmet</p>
+                </div>
+            </div>
+             <div class="mt-12">
+                <div class="chart-container">
+                    <canvas id="equipmentChart"></canvas>
+                </div>
+                <p class="text-center text-sm text-slate-500 mt-4">Ekipman ve hizmetlerin kategori bazlı dağılımı.</p>
+            </div>
+        </section>
+
+        <!-- Steps -->
+        <section id="steps" class="py-16">
+            <h2 class="section-title">Resmi Adımlar: Kurulum Öncesi Süreçler</h2>
+            <p class="section-subtitle">
+                Ekipman teminiyle eş zamanlı olarak, sistemin yasal ve verimli bir şekilde çalışabilmesi için iki kritik resmi adımın atılması gerekmektedir.
+            </p>
+            <div class="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+                <div class="card hover:shadow-2xl hover:-translate-y-1 flex flex-col">
+                    <div class="flex items-center mb-4">
+                        <span class="text-5xl mr-4">📍</span>
+                        <h3 class="text-2xl font-bold">Yer Tahsisi</h3>
+                    </div>
+                    <p class="text-slate-600 flex-1">Sabit Rölenin, en yüksek verimle çalışacağı, ilçeye hakim, güvenli bir konumda kurulması için İlçe Özel İdaresi'nden yer tahsis edilmesi gerekmektedir.</p>
+                </div>
+                <div class="card hover:shadow-2xl hover:-translate-y-1 flex flex-col">
+                    <div class="flex items-center mb-4">
+                        <span class="text-5xl mr-4">📶</span>
+                        <h3 class="text-2xl font-bold">Frekans Tahsisi</h3>
+                    </div>
+                    <p class="text-slate-600 flex-1">Sistemin diğer haberleşme ağlarıyla karışmasını önlemek ve yasal bir zemin oluşturmak için Bilgi Teknolojileri ve İletişim Kurumu'ndan (BTK) kamu yararına frekans tahsisi talep edilmelidir.</p>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Call to Action & Footer -->
+        <footer class="text-center py-12 border-t border-slate-200">
+             <h2 class="text-2xl font-bold text-slate-800">Onay ve Destek Talebi</h2>
+            <p class="text-slate-600 max-w-3xl mx-auto mt-4 mb-6">
+                Bu proje, mali bir giderden öte, Üzümlü halkının can güvenliğine yapılmış hayati bir yatırımdır. Afetlere karşı direncimizi artıracak bu sistemin kurulması için onay ve desteklerinizi arz ederiz.
+            </p>
+            <p class="font-bold">Mertcan Yıldızdöken</p>
+            <p class="text-sm text-slate-500">Proje Sahibi</p>
+        </footer>
+    </main>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Smooth scrolling for navigation
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    document.querySelector(this.getAttribute('href')).scrollIntoView({
+                        behavior: 'smooth'
+                    });
+                });
+            });
+
+            // Scenario Timeline Interaction
+            const scenarioData = [
+                { time: '03:00', text: '<strong>Deprem & Bilgi Karanlığı:</strong> 7.2 büyüklüğünde deprem meydana gelir. Elektrik, internet ve GSM şebekesi tamamen çöker. Tam bir kaos ortamı hakimdir.' },
+                { time: '03:05', text: '<strong>Kriz Masası Aktif:</strong> Kriz Masası, kendi enerjisiyle çalışan ana merkez telsizini açar ve röle üzerinden tüm görevlilere ilk çağrıyı yaparak anında otoriteyi sağlar.' },
+                { time: '03:07', text: '<strong>Üst Düzey Koordinasyon:</strong> HF Telsiz ile anında Erzincan Valiliği ve AFAD ile temas kurulur. İlçenin durumu ve acil ihtiyaçlar gecikmesiz olarak iletilir.' },
+                { time: '03:15', text: '<strong>Sahada Etkin Yönetim:</strong> El telsizli ekipler sahaya iner. Yıkılan binalar, yaralı sayısı gibi kritik bilgiler anında merkeze ulaşır ve ekipler doğru noktalara yönlendirilir.' },
+                { time: '03:45', text: '<strong>Seyyar Röle Devrede:</strong> Kapsama dışı bir enkaz bölgesine seyyar röle sevk edilir. 5 dakika içinde kurularak o bölgede yerel bir haberleşme ağı oluşturulur ve operasyon verimliliği artar.' },
+                { time: '04:30', text: '<strong>Sonuç: Hayat Kurtaran Verimlilik:</strong> Bilgi akışı hiç kesilmez. Kaos yerine koordine bir müdahale yürütülür. Kaynaklar doğru kullanılır ve daha fazla can kurtarılır.' }
+            ];
+
+            const timelineContainer = document.getElementById('timeline-container');
+            const scenarioDisplay = document.getElementById('scenario-display');
+            
+            scenarioData.forEach((item, index) => {
+                const point = document.createElement('div');
+                point.className = 'timeline-point inactive';
+                point.textContent = item.time;
+                point.dataset.index = index;
+                timelineContainer.appendChild(point);
+
+                point.addEventListener('click', () => {
+                    document.querySelectorAll('.timeline-point').forEach(p => p.classList.replace('active', 'inactive'));
+                    point.classList.replace('inactive', 'active');
+                    scenarioDisplay.innerHTML = `<p class="text-slate-700 text-lg">${item.text}</p>`;
+                });
+            });
+
+            document.querySelector('.timeline-point').click();
+
+            // Equipment Chart
+            const ctx = document.getElementById('equipmentChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Ana Ekipman', 'Güç Sistemi', 'Yardımcı Malzeme', 'Kurulum ve Eğitim'],
+                    datasets: [{
+                        label: 'Proje İhtiyaçları',
+                        data: [4, 3, 3, 2],
+                        backgroundColor: ['rgba(59, 130, 246, 0.8)', 'rgba(16, 185, 129, 0.8)', 'rgba(245, 158, 11, 0.8)', 'rgba(107, 114, 128, 0.8)'],
+                        borderColor: ['rgba(59, 130, 246, 1)', 'rgba(16, 185, 129, 1)', 'rgba(245, 158, 11, 1)', 'rgba(107, 114, 128, 1)'],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'top' },
+                        title: { display: true, text: 'İhtiyaçların Kategori Dağılımı (Kalem Bazında)' }
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>
